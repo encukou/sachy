@@ -199,6 +199,21 @@ class Sachovnice:
                 else:
                     kresli_obrazek('pole2', radek, sloupec)
 
+                # Označení možných tahů
+                if self.vybrana_pozice:
+                    kreslena_pozice = (radek, sloupec)
+                    figurka = self.figurka_na(self.vybrana_pozice)
+                    try:
+                        figurka.over_tah(
+                            self,
+                            self.vybrana_pozice,
+                            kreslena_pozice,
+                        )
+                    except ValueError as chyba:
+                        pass
+                    else:
+                        kresli_obrazek('muze', radek, sloupec)
+
         # Figurky
         for (radek, sloupec), figurka in self.figurky.items():
             kresli_obrazek(f'{figurka.strana}_{figurka.druh}', radek, sloupec)
