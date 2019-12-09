@@ -8,7 +8,7 @@ virtuálním prostředím) pomocí:
     python -m pip install pyglet
 
 
-Figurkama se dá hýbat, ale není hotová kontrola pravidel.
+Figurkama se dá hýbat, ale není hotová kontrola pravidel (kromě tahů věže).
 
 
 ## Licence
