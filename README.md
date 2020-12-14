@@ -7,6 +7,9 @@ virtuálním prostředím) pomocí:
 
     python -m pip install pyglet
 
+Hru potom spustíš pomocí:
+
+    python ui.py
 
 Figurkama se dá hýbat, ale není hotová kontrola pravidel (kromě tahů věže).
 

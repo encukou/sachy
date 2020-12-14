@@ -1,4 +1,3 @@
-import pyglet
 
 class Figurka:
     def __init__(self, strana, druh):
@@ -193,8 +192,12 @@ class Sachovnice:
             figurka.tahni(self, self.vybrana_pozice, pozice)
         self.vybrana_pozice = None
 
-    def vykresli_se(self):
-        """Vykreslí šachovnici do Pyglet okýnka"""
+    def vykresli_se(self, kresli_obrazek):
+        """Vykreslí šachovnici do Pyglet okýnka
+
+        Jako argument bere funkce kresli_obrazek(figurka, radek, sloupec),
+        která zajistí samotné vykreslení.
+        """
 
         # Pozadí - střídavá políčka
         for radek in range(8):
@@ -228,6 +231,34 @@ class Sachovnice:
             radek, sloupec = self.vybrana_pozice
             kresli_obrazek('vyber', radek, sloupec)
 
+    def __str__(self):
+        """Převede šachovnici na řetězec, který se dá vypsat"""
+
+        # Tohle je variace na vypsání tabulky (úkoly typu "vypiš čtverec
+        # poskládaný ze znaků X"), ale místo vypsání pomocí `print` se
+        # spojí do jednoho řetězce.
+
+        radky = ['   a b c d e f g h   ']
+        for cislo_radku in range(8):
+            radek = []
+            for cislo_sloupce in range(8):
+                pozice = cislo_radku, cislo_sloupce
+                figurka = self.figurky.get(pozice)
+                if figurka:
+                    # Vybrání znaku pro danou figurku
+                    jmena_figurek = 'kral dama vez strelec kun pesec'
+                    d = jmena_figurek.split().index(figurka.druh)
+                    s = 'bily cerny'.split().index(figurka.strana)
+                    fig = "♔♕♖♗♘♙♚♛♜♝♞♟︎"[s * 6 + d]
+
+                    radek.append(f' {fig}')
+                else:
+                    radek.append('  ')
+            cislo = 8 - cislo_radku
+            radky.append(f'{cislo} {"".join(radek)}  {cislo}')
+        radky.append('   a b c d e f g h   ')
+        return '\n'.join(radky)
+
 
 def popis_pozici(pozice):
     """Popíše pozici pro lidi
@@ -240,84 +271,3 @@ def popis_pozici(pozice):
     """
     radek, sloupec = pozice
     return "abcdefgh"[sloupec] + "12345678"[radek]
-
-
-okno = pyglet.window.Window(width=360, height=360, resizable=True)
-sachovnice = Sachovnice()
-pozice_mysi = [0, 0]
-
-obrazky = {}
-
-def kresli_obrazek(jmeno, radek, sloupec):
-    """Nakreslí obrázek na danou pozici"""
-
-    # Načtené obrázky ukládáme ve slovníku "obrazky",
-    # aby se nemusely načítat víckrát
-    try:
-        obrazek = obrazky[jmeno]
-    except KeyError:
-        # Když ještě obrázek ve slovníku není, načíst a uložit
-        obrazek = pyglet.image.load(f"{jmeno}.png")
-        obrazky[jmeno] = obrazek
-
-    # Vykreslení obrázku
-    velikost = min(okno.width, okno.height) / 8
-    obrazek.blit(
-        sloupec * velikost, radek * velikost,
-        width=velikost, height=velikost,
-    )
-
-@okno.event
-def on_draw():
-    """Vykreslí obsah okna"""
-
-    okno.clear()
-    # Lepší vykreslování (pro nás zatím kouzelné zaříkadlo)
-    pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-    pyglet.gl.glBlendFunc(
-        pyglet.gl.GL_SRC_ALPHA,
-        pyglet.gl.GL_ONE_MINUS_SRC_ALPHA,
-    )
-
-    sachovnice.vykresli_se()
-
-    # Vykreslení "stínu" figurky, která se hýbe
-    radek, sloupec = pozice_mysi
-    figurka = sachovnice.vrat_vybranou_figurku()
-    if figurka:
-        pyglet.gl.glColor4f(1, 1, 1, 0.5)
-        kresli_obrazek(f'{figurka.strana}_{figurka.druh}', radek, sloupec)
-        pyglet.gl.glColor4f(1, 1, 1, 1)
-        if sachovnice.muze_tahnout(pozice_mysi):
-            kresli_obrazek('muze', radek, sloupec)
-        else:
-            kresli_obrazek('nemuze', radek, sloupec)
-
-
-def pozice_na_souradnicich(x, y):
-    """Vrátí pozici (radek, sloupec) na pixelových souřadnicích (x, y)"""
-    velikost = min(okno.width, okno.height) / 8
-    sloupec = int(x / velikost)
-    radek = int(y / velikost)
-    return radek, sloupec
-
-@okno.event
-def on_mouse_press(x, y, tlacitko, mod):
-    """Zpracuje zmáčknutí tlačítka myši"""
-    pozice = pozice_na_souradnicich(x, y)
-    sachovnice.vyber_pozici(pozice)
-    pozice_mysi[:] = pozice_na_souradnicich(x, y)
-
-@okno.event
-def on_mouse_release(x, y, tlacitko, mod):
-    """Zpracuje puštění tlačítka myši"""
-    pozice = pozice_na_souradnicich(x, y)
-    sachovnice.tahni_na_pozici(pozice)
-
-@okno.event
-def on_mouse_drag(x, y, dx, dy, tlacitko, mod):
-    """Zpracuje tažení myší"""
-    pozice_mysi[:] = pozice_na_souradnicich(x, y)
-
-
-pyglet.app.run()
