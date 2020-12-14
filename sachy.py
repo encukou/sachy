@@ -15,8 +15,10 @@ class Figurka:
         Když tah nejde provést, tahle metoda způsobí ValueError.
 
         sachovnice: Šachovnice, na které se figurka hýbe
-        puvodni_pozice: Pozice (radek, sloupec), na kterém figurka právě je
-        nova_pozice: Pozice (radek, sloupec), na které figurka má jít
+        puvodni_pozice: Dvojice (radek, sloupec): kde figurka právě je
+        nova_pozice: Dvojice (radek, sloupec): kam figurka má jít
+
+        Řádky a sloupce jsou čísla 0-7.
         """
 
         # Pokud se figurka nehýbe, nejde o tah
@@ -42,6 +44,9 @@ class Vez(Figurka):
         super().__init__(strana, 'vez')
 
     def over_tah(self, sachovnice, puvodni_pozice, nova_pozice):
+        # (viz dokumentační řetězec v nadtřídě.)
+
+        # Nejdřív proveď ověření, která jsou společné všem figurkám
         super().over_tah(sachovnice, puvodni_pozice, nova_pozice)
 
         # Rozložení pozic (radek, sloupec) na čísla
